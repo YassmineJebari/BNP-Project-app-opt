@@ -1,0 +1,67 @@
+<div class="login-container">
+    <div class="left-section">
+
+    
+        <div class="welcome-content">
+            <h1>Salut !</h1>
+            <p class="subtitle">Content de te revoir, qu'est ce qu'on cuisine aujourd'hui?</p>
+            <p>
+                connecter vous pour decouvrir nos milliers de recettes délicieuses, 
+                partagez vos créations et simplifiez votre cuisine au quotidien.
+            </p>
+        </div>
+    </div>
+
+
+    <div class="right-section">
+        <div class="login-card">
+            <h2>Connexion</h2>
+            <div *ngIf="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        id="email"
+                        type="email" 
+                        formControlName="email" 
+                        placeholder="exemple@email.com"
+                        [class.invalid]="email?.invalid && email?.touched"
+                    />
+                    <div *ngIf="email?.invalid && email?.touched" class="error">
+                        <small *ngIf="email?.errors?.['required']">L'email est requis</small>
+                        <small *ngIf="email?.errors?.['email']">Email invalide</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input 
+                        id="password"
+                        type="password" 
+                        formControlName="password" 
+                        placeholder="••••••••"
+                        [class.invalid]="password?.invalid && password?.touched"
+                    />
+                    <div *ngIf="password?.invalid && password?.touched" class="error">
+                        <small *ngIf="password?.errors?.['required']">Le mot de passe est requis</small>
+                        <small *ngIf="password?.errors?.['minlength']">Minimum 6 caractères</small>
+                    </div>
+                </div>
+                <button 
+                    type="submit" 
+                    [disabled]="loading"
+                    class="btn-primary"
+                >
+                    <span *ngIf="!loading">Se connecter</span>
+                    <span *ngIf="loading">Connexion en cours...</span>
+                </button>
+            </form>
+
+            <p class="register-link">
+                Pas encore de compte ? 
+                <a routerLink="../sign-up">S'inscrire</a>
+            </p>
+        </div>
+    </div>
+</div>

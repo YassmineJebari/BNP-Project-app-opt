@@ -1,0 +1,131 @@
+<div class="register-container">
+    <div class="left-section">
+        <div class="welcome-content">
+            <h1>Bienvenue</h1>
+            <p class="subtitle">Rejoignez notre communauté gourmande </p>
+            <p>
+                Créez votre compte pour accéder à des milliers de recettes savoureuses, 
+                partager vos propres créations culinaires, et simplifier votre cuisine au quotidien.
+            </p>
+        </div>
+    </div>
+
+  <div class="right-section">
+    <div class="register-card">
+      <h2>Créer un compte</h2>
+      
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input 
+            id="username"
+            type="text" 
+            formControlName="username" 
+            placeholder="jeandupont"
+            [class.invalid]="username?.invalid && username?.touched"
+          />
+          <div *ngIf="username?.invalid && username?.touched" class="error">
+            <small *ngIf="username?.errors?.['required']">Le nom d'utilisateur est requis</small>
+            <small *ngIf="username?.errors?.['minlength']">Minimum 3 caractères</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="firstName">Prénom</label>
+          <input 
+            id="firstName"
+            type="text" 
+            formControlName="firstName" 
+            placeholder="Jean"
+            [class.invalid]="firstName?.invalid && firstName?.touched"
+          />
+          <div *ngIf="firstName?.invalid && firstName?.touched" class="error">
+            <small *ngIf="firstName?.errors?.['required']">Le prénom est requis</small>
+            <small *ngIf="firstName?.errors?.['minlength']">Minimum 2 caractères</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Nom</label>
+          <input 
+            id="lastName"
+            type="text" 
+            formControlName="lastName" 
+            placeholder="Dupont"
+            [class.invalid]="lastName?.invalid && lastName?.touched"
+          />
+          <div *ngIf="lastName?.invalid && lastName?.touched" class="error">
+            <small *ngIf="lastName?.errors?.['required']">Le nom est requis</small>
+            <small *ngIf="lastName?.errors?.['minlength']">Minimum 2 caractères</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            id="email"
+            type="email" 
+            formControlName="email" 
+            placeholder="exemple@email.com"
+            [class.invalid]="email?.invalid && email?.touched"
+          />
+          <div *ngIf="email?.invalid && email?.touched" class="error">
+            <small *ngIf="email?.errors?.['required']">L'email est requis</small>
+            <small *ngIf="email?.errors?.['email']">Email invalide</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input 
+            id="password"
+            type="password" 
+            formControlName="password" 
+            placeholder="••••••••"
+            [class.invalid]="password?.invalid && password?.touched"
+          />
+          <div *ngIf="password?.invalid && password?.touched" class="error">
+            <small *ngIf="password?.errors?.['required']">Le mot de passe est requis</small>
+            <small *ngIf="password?.errors?.['minlength']">Minimum 6 caractères</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmer le mot de passe</label>
+          <input 
+            id="confirmPassword"
+            type="password" 
+            formControlName="confirmPassword" 
+            placeholder="••••••••"
+            [class.invalid]="confirmPassword?.invalid && confirmPassword?.touched"
+          />
+          <div *ngIf="confirmPassword?.invalid && confirmPassword?.touched" class="error">
+            <small *ngIf="confirmPassword?.errors?.['required']">Veuillez confirmer votre mot de passe</small>
+            <small *ngIf="confirmPassword?.errors?.['passwordMismatch']">Les mots de passe ne correspondent pas</small>
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          [disabled]="loading"
+          class="btn-primary"
+        >
+          <span *ngIf="!loading">S'inscrire</span>
+          <span *ngIf="loading">Inscription en cours...</span>
+        </button>
+      </form>
+
+      <p class="login-link">
+        Vous avez déjà un compte ? 
+        <a routerLink="../sign-in">Se connecter</a>
+      </p>
+    </div>
+  </div>
+</div>

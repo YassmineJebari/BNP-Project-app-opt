@@ -1,0 +1,228 @@
+<div class="main-layout">
+    <div class="profile-header-bar">
+        <h1 class="page-title">Profil</h1>
+        <p class="page-subtitle">Consultez tous les détails de votre profil ici</p>
+    </div>
+
+    <div class="structure">
+        <!-- SIDEBAR -->
+        <div class="app-sidebar">
+            <div class="profile-sidebar">
+                <div class="user-card">
+
+                    <div class="user-avatar-container">
+                        <div class="user-avatar">
+                            {{ getUserInitials() }}
+                        </div>
+
+                        <h2 class="user-name">{{ getUserFullName() }}</h2>
+
+                        <div *ngIf="isLoading" class="loader-container">
+                            <div class="loader"></div>
+                        </div>
+
+                        <div class="about">
+                            <label>A propos de moi</label>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit…</p>
+                        </div>
+
+                        <!-- USER DETAILS -->
+                        <div *ngIf="!isLoading" class="details-card">
+                            <div class="details-header">
+
+                                <div class="informations">
+                                    <label class="details-title">Bio & autres détails</label>
+                                    <button class="btn-edit" (click)="toggleEdit()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="details-grid">
+                                    <div class="detail-row">
+                                        <div class="detail-item">
+                                            <label class="detail-label">Mon plat favori</label>
+                                            <p class="detail-value">
+                                                {{ recette?.title || 'Cordon bleu' }}
+                                            </p>
+                                        </div>
+
+                                        <div class="detail-item">
+                                            <label class="detail-label">Catégorie favorite</label>
+                                            <p class="detail-value">
+                                                {{ recette?.categoryName || 'Cuisine française' }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="detail-full">
+                                        <label class="details-title">Tags</label>
+                                        <div class="tags">
+                                            <span class="tag">#Végétarien</span>
+                                            <span class="tag">#SansGluten</span>
+                                            <span class="tag">#CuisineFrançaise</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+
+            <!-- FILTERS -->
+            <div class="filters">
+                <button 
+                    class="filter-btn"
+                    [class.active]="showFavoritesOnly"
+                    (click)="toggleFavoritesFilter()"
+                >
+                    Favoris
+                </button>
+
+                <select class="filter-select" [(ngModel)]="selectedCategory" (change)="filterRecipes()">
+                    <option value="">Toutes catégories</option>
+                    <option *ngFor="let r of recettes" [value]="r.categoryId">
+                        {{ r.categoryName }}
+                    </option>
+                </select>
+
+                <select class="filter-select" [(ngModel)]="sortBy" (change)="filterRecipes()">
+                    <option value="">Trier par...</option>
+                    <option value="recent">Plus récentes</option>
+                    <option value="rating">Plus populaires</option>
+                    <option value="name">Nom (A-Z)</option>
+                    <option value="time">Temps de préparation</option>
+                </select>
+            </div>
+
+            <!-- RECIPES GRID -->
+            <div class="recipes-grid" *ngIf="filteredRecettes.length > 0; else noRecipes">
+                <div class="recipe-card" *ngFor="let recette of filteredRecettes">
+
+                    <!-- IMAGE -->
+                    <div class="recipe-image-container">
+                        <img
+                            [src]="recette.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'"
+                            [alt]="recette.title"
+                            class="recipe-image"
+                        />
+
+                        <div class="image-overlay">
+                            <span class="category-badge">
+                                {{ recette.categoryName || 'Plat' }}
+                            </span>
+                        </div>
+
+                        <button
+                            class="btn-favorite"
+                            [class.is-favorite]="recette.isFavorite"
+                            (click)="toggleFavorite(recette)"
+                            title="Ajouter aux favoris"
+                        >
+                            {{ recette.isFavorite ? '❤️' : '🤍' }}
+                        </button>
+                    </div>
+
+                    <!-- CARD BODY -->
+                    <div class="recipe-card-body">
+                        <h3 class="recipe-title">{{ recette.title }}</h3>
+
+                        <!-- FAVORITES AS RATING -->
+                        <div class="recipe-rating">
+                            <span class="stars">
+                                ⭐ {{ recette.favoritesCount || 0 }}
+                            </span>
+                            <span class="rating-text">favoris</span>
+                        </div>
+
+                        <p class="recipe-description">
+                            {{ recette.description }}
+                        </p>
+
+                        <div class="recipe-meta">
+                            <span class="meta-badge">
+                                🛒 {{ recette.ingredients.length }}
+                            </span>
+                            <span class="meta-badge">
+                                ⏱️ {{ recette.preparationTime }} min
+                            </span>
+                            <span class="meta-badge">
+                                👥 {{ recette.servings }}
+                            </span>
+                        </div>
+
+                        <!-- INGREDIENTS PREVIEW -->
+                        <div class="recipe-ingredients-preview">
+                            <div class="ingredients-scroll">
+                                <span class="ingredient-chip"
+                                      *ngFor="let ing of recette.ingredients.slice(0, 3)">
+                                    {{ ing.ingredientName || 'Ingrédient' }}
+                                </span>
+
+                                <span class="ingredient-more"
+                                      *ngIf="recette.ingredients.length > 3">
+                                    +{{ recette.ingredients.length - 3 }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="recipe-card-footer">
+                        <button class="btn-action btn-view" [routerLink]="['/recipes/detail', recette.id]">
+                            Voir plus
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EMPTY STATE -->
+            <ng-template #noRecipes>
+                <div class="empty-state">
+                    <div class="empty-illustration">
+                        <div class="empty-circle">
+                            <span class="empty-icon">
+                                {{ searchTerm || selectedCategory || showFavoritesOnly ? '🔍' : '📭' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <h2 class="empty-title">
+                        {{ searchTerm || selectedCategory || showFavoritesOnly 
+                            ? 'Aucune recette trouvée' 
+                            : 'Votre livre de recettes est vide' }}
+                    </h2>
+
+                    <p class="empty-text">
+                        {{ searchTerm || selectedCategory || showFavoritesOnly
+                            ? 'Essayez de modifier vos critères de recherche'
+                            : 'Commencez votre aventure culinaire en ajoutant votre première recette !' }}
+                    </p>
+
+                    <button class="btn btn-secondary mt-3"
+                            (click)="clearFilters()"
+                            *ngIf="searchTerm || selectedCategory || showFavoritesOnly">
+                        🔄 Réinitialiser les filtres
+                    </button>
+
+                    <button class="btn btn-primary mt-3"
+                            [routerLink]="['/recipes/add']"
+                            *ngIf="!searchTerm && !selectedCategory && !showFavoritesOnly">
+                        ✨ Créer ma première recette
+                    </button>
+                </div>
+            </ng-template>
+
+        </div>
+    </div>
+</div>

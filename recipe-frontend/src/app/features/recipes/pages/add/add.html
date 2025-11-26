@@ -1,0 +1,239 @@
+<div class="form-container">
+  <div class="form-header">
+    <button class="btn-back" [routerLink]="['/recipes']">
+      ← Retour à la liste
+    </button>
+  </div>
+
+  <div class="form-card">
+    <!-- Pour edit.html, remplacez juste le titre -->
+<!-- POUR ADD.HTML : -->
+<div class="form-title-section">
+  <div class="form-icon">➕</div>
+  <div>
+    <h1 class="form-title">Nouvelle Recette</h1>
+    <p class="form-subtitle">Ajoutez une délicieuse recette à votre collection</p>
+  </div>
+</div>
+
+<!-- POUR EDIT.HTML : -->
+<!-- Remplacez le bloc form-title-section par : -->
+<!--
+<div class="form-title-section">
+  <div class="form-icon">✏️</div>
+  <div>
+    <h1 class="form-title">Modifier la Recette</h1>
+    <p class="form-subtitle">Mettez à jour les informations de votre recette</p>
+  </div>
+</div>
+-->
+
+    <form class="recipe-form">
+      <!-- TITRE -->
+      <div class="form-group">
+        <label class="form-label" for="titre">
+          <span class="label-icon">📝</span>
+          Titre de la recette *
+        </label>
+        <input
+          id="titre"
+          type="text"
+          class="form-input"
+          [(ngModel)]="recette.titre"
+          name="titre"
+          placeholder="Ex: Pâtes Carbonara"
+          required
+        />
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="form-group">
+        <label class="form-label" for="description">
+          <span class="label-icon">📄</span>
+          Description
+        </label>
+        <textarea
+          id="description"
+          class="form-textarea"
+          [(ngModel)]="recette.description"
+          name="description"
+          placeholder="Décrivez votre recette..."
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- ÉTAPES -->
+      <div class="form-group">
+        <label class="form-label" for="steps">
+          <span class="label-icon">🧾</span>
+          Étapes de préparation
+        </label>
+        <textarea
+          id="steps"
+          class="form-textarea"
+          [(ngModel)]="recette.steps"
+          name="steps"
+          placeholder="Décrivez les étapes de préparation..."
+          rows="6"
+        ></textarea>
+      </div>
+
+      <!-- GRID pour Catégorie, Temps, Portions, Difficulté -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">🏷️</span>
+            Catégorie
+          </label>
+          <select class="form-input" [(ngModel)]="recette.category" name="category">
+            <option value="">Sélectionner...</option>
+            <option value="Entrée">🥗 Entrée</option>
+            <option value="Plat">🍝 Plat</option>
+            <option value="Dessert">🍰 Dessert</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">⏱️</span>
+            Temps (min)
+          </label>
+          <input
+            type="number"
+            class="form-input"
+            [(ngModel)]="recette.preparationTime"
+            name="preparationTime"
+            placeholder="30"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">👥</span>
+            Portions
+          </label>
+          <input
+            type="number"
+            class="form-input"
+            [(ngModel)]="recette.portions"
+            name="portions"
+            placeholder="4"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">📊</span>
+            Difficulté
+          </label>
+          <select class="form-input" [(ngModel)]="recette.difficulty" name="difficulty">
+            <option value="">Sélectionner...</option>
+            <option value="Facile">Facile</option>
+            <option value="Moyen">Moyen</option>
+            <option value="Difficile">Difficile</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- IMAGE URL -->
+      <div class="form-group">
+        <label class="form-label" for="imageUrl">
+          <span class="label-icon">🖼️</span>
+          URL de l'image
+        </label>
+        <input
+          id="imageUrl"
+          type="text"
+          class="form-input"
+          [(ngModel)]="recette.imageUrl"
+          name="imageUrl"
+          placeholder="https://exemple.com/image.jpg"
+        />
+        <p class="hint-text">💡 Utilisez des images de sites comme Unsplash ou Pexels</p>
+      </div>
+
+      <!-- VIDEO URL -->
+      <div class="form-group">
+        <label class="form-label" for="videoUrl">
+          <span class="label-icon">🎥</span>
+          URL de la vidéo (YouTube)
+        </label>
+        <input
+          id="videoUrl"
+          type="text"
+          class="form-input"
+          [(ngModel)]="recette.videoUrl"
+          name="videoUrl"
+          placeholder="https://www.youtube.com/embed/VIDEO_ID"
+        />
+        <p class="hint-text">💡 Format: https://www.youtube.com/embed/VIDEO_ID</p>
+      </div>
+
+      <!-- INGRÉDIENTS -->
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-icon">🛒</span>
+          Ingrédients
+        </label>
+        
+        <div class="ingredient-input-group">
+          <input
+            type="text"
+            class="form-input ingredient-input"
+            [(ngModel)]="ingredientInput"
+            name="ingredientInput"
+            placeholder="Ex: 200g de pâtes"
+            (keyup.enter)="addIngredient()"
+          />
+          <button
+            type="button"
+            class="btn-add-ingredient"
+            (click)="addIngredient()"
+          >
+            ➕ Ajouter
+          </button>
+        </div>
+
+        <div class="ingredients-preview" *ngIf="recette.ingredients.length > 0">
+          <h3 class="preview-title">Ingrédients ajoutés:</h3>
+          <ul class="ingredients-list">
+            <li *ngFor="let ing of recette.ingredients; let i = index" class="ingredient-tag">
+              <span>{{ ing }}</span>
+              <button
+                type="button"
+                class="btn-remove"
+                (click)="removeIngredient(i)"
+                title="Supprimer"
+              >
+                ✕
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <p class="hint-text" *ngIf="recette.ingredients.length === 0">
+          💡 Ajoutez vos ingrédients un par un
+        </p>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [routerLink]="['/recipes']"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="save()"
+          [disabled]="!recette.titre"
+        >
+          ✓ Enregistrer la recette
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

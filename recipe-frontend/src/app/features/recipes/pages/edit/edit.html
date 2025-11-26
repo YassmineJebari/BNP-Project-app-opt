@@ -1,0 +1,210 @@
+<div class="form-container">
+  <div class="form-header">
+    <button class="btn-back" [routerLink]="['/recipes']">
+      ← Retour à la liste
+    </button>
+  </div>
+
+  <div class="form-card">
+    <!-- TITRE DE LA FORMULAIRE -->
+    <div class="form-title-section">
+      <div class="form-icon">✏️</div>
+      <div>
+        <h1 class="form-title">Modifier la Recette</h1>
+        <p class="form-subtitle">Mettez à jour les informations de votre recette</p>
+      </div>
+    </div>
+
+    <form class="recipe-form">
+      <!-- TITRE -->
+      <div class="form-group">
+        <label class="form-label" for="title">
+          <span class="label-icon">📝</span>
+          Titre de la recette *
+        </label>
+        <input
+          id="title"
+          type="text"
+          class="form-input"
+          [(ngModel)]="recette.title"
+          name="title"
+          placeholder="Ex: Pâtes Carbonara"
+          required
+        />
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="form-group">
+        <label class="form-label" for="description">
+          <span class="label-icon">📄</span>
+          Description
+        </label>
+        <textarea
+          id="description"
+          class="form-textarea"
+          [(ngModel)]="recette.description"
+          name="description"
+          placeholder="Décrivez votre recette..."
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- GRID pour Catégorie, Temps, Portions, Difficulté -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">🏷️</span>
+            Catégorie
+          </label>
+          <select class="form-input" [(ngModel)]="recette.categoryId" name="categoryId">
+            <option [ngValue]="null">Sélectionner...</option>
+            <option [ngValue]="1">🥗 Entrée</option>
+            <option [ngValue]="2">🍝 Plat</option>
+            <option [ngValue]="3">🍰 Dessert</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">⏱️</span>
+            Temps (min)
+          </label>
+          <input
+            type="number"
+            class="form-input"
+            [(ngModel)]="recette.preparationTime"
+            name="preparationTime"
+            placeholder="30"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">👥</span>
+            Portions
+          </label>
+          <input
+            type="number"
+            class="form-input"
+            [(ngModel)]="recette.servings"
+            name="servings"
+            placeholder="4"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <span class="label-icon">📊</span>
+            Difficulté
+          </label>
+          <select class="form-input" [(ngModel)]="recette.difficulty" name="difficulty">
+            <option value="">Sélectionner...</option>
+            <option value="FACILE">Facile</option>
+            <option value="MOYEN">Moyen</option>
+            <option value="DIFFICILE">Difficile</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- IMAGE URL -->
+      <div class="form-group">
+        <label class="form-label" for="imageUrl">
+          <span class="label-icon">🖼️</span>
+          URL de l'image
+        </label>
+        <input
+          id="imageUrl"
+          type="text"
+          class="form-input"
+          [(ngModel)]="recette.imageUrl"
+          name="imageUrl"
+          placeholder="https://exemple.com/image.jpg"
+        />
+        <p class="hint-text">💡 Utilisez des images de sites comme Unsplash ou Pexels</p>
+      </div>
+
+      <!-- VIDEO URL -->
+      <div class="form-group">
+        <label class="form-label" for="videoUrl">
+          <span class="label-icon">🎥</span>
+          URL de la vidéo (YouTube)
+        </label>
+        <input
+          id="videoUrl"
+          type="text"
+          class="form-input"
+          [(ngModel)]="recette.videoUrl"
+          name="videoUrl"
+          placeholder="https://www.youtube.com/embed/VIDEO_ID"
+        />
+        <p class="hint-text">💡 Format: https://www.youtube.com/embed/VIDEO_ID</p>
+      </div>
+
+      <!-- INGRÉDIENTS -->
+      <div class="form-group">
+        <label class="form-label">
+          <span class="label-icon">🛒</span>
+          Ingrédients
+        </label>
+        
+        <div class="ingredient-input-group">
+          <input
+            type="text"
+            class="form-input ingredient-input"
+            [(ngModel)]="ingredientInput"
+            name="ingredientInput"
+            placeholder="Ex: 200g de pâtes"
+            (keyup.enter)="addIngredient()"
+          />
+          <button
+            type="button"
+            class="btn-add-ingredient"
+            (click)="addIngredient()"
+          >
+            ➕ Ajouter
+          </button>
+        </div>
+
+        <div class="ingredients-preview" *ngIf="recette.ingredients.length > 0">
+          <h3 class="preview-title">Ingrédients ajoutés:</h3>
+          <ul class="ingredients-list">
+            <li *ngFor="let ing of recette.ingredients; let i = index" class="ingredient-tag">
+              <span>{{ ing.ingredientName || 'Nouvel ingrédient' }}</span>
+              <button
+                type="button"
+                class="btn-remove"
+                (click)="removeIngredient(i)"
+                title="Supprimer"
+              >
+                ✕
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <p class="hint-text" *ngIf="recette.ingredients.length === 0">
+          💡 Ajoutez vos ingrédients un par un
+        </p>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [routerLink]="['/recipes']"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="save()"
+          [disabled]="!recette.title"
+        >
+          ✓ Enregistrer la recette
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

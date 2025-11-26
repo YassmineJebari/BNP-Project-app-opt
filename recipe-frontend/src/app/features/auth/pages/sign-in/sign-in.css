@@ -1,0 +1,234 @@
+* {
+     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.login-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.left-section {
+    flex: 1;
+    background: linear-gradient(135deg, #206a5d 0%, #0FAC71 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 60px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.left-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.left-section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 60px;
+    z-index: 1;
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.brand-name {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+}
+
+.welcome-content {
+    z-index: 1;
+    max-width: 500px;
+}
+
+.welcome-content h1 {
+    font-size: 52px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.welcome-content .subtitle {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    opacity: 0.95;
+}
+
+.welcome-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    opacity: 0.85;
+    font-weight: 400;
+}
+
+
+.right-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: #f8f9fa;
+}
+
+.login-card {
+    background: #ffffff;
+    padding: 50px;
+    border-radius: 12px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.error-message {
+    background: #fee;
+    color: #e74c3c;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1a1a1a;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #0FAC71;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.form-group input.invalid {
+    border-color: #e74c3c;
+}
+
+.form-group .error {
+    margin-top: 6px;
+}
+
+.form-group .error small {
+    color: #e74c3c;
+    font-size: 13px;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: #0FAC71;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #0FAC71;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px #0FAC71;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 24px;
+    color: #666;
+    font-size: 14px;
+}
+
+.register-link a {
+    color: #0FAC71;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 968px) {
+    .login-container {
+        flex-direction: column;
+    }
+
+    .left-section {
+        min-height: 300px;
+    }
+
+    .login-card {
+        padding: 30px;
+    }
+}

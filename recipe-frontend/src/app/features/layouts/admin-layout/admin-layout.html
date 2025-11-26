@@ -1,0 +1,248 @@
+<div class="main-layout">
+  <div class="head-img"></div>
+
+  <div class="profile-header-bar">
+    <h1 class="page-title">Profil</h1>
+    <p class="page-subtitle">Consultez tous les détails de votre profil ici</p>
+  </div>
+
+  <div class="main-content">
+    <div class="filters">
+      <button
+        class="btn-recettes"
+        [class.active]="activeTab === 'recettes'"
+        (click)="toggleRecette()"
+      >
+        Recettes ({{ totalRecipes }})
+      </button>
+
+      <button
+        class="btn-utilisateurs"
+        [class.active]="activeTab === 'utilisateurs'"
+        (click)="toggleUtilisateurs()"
+      >
+        Utilisateurs ({{ totalUsers }})
+      </button>
+
+      <!-- Filtres SANS *ngIf - toujours visibles -->
+      <select class="filter-select">
+        <option value="">Toutes catégories</option>
+        <option value="Entrée">Entrées</option>
+        <option value="Plat">Plats</option>
+        <option value="Dessert">Desserts</option>
+      </select>
+
+      <select class="filter-select">
+        <option value="">Trier par...</option>
+        <option value="recent">Plus récentes</option>
+        <option value="rating">Mieux notées</option>
+        <option value="name">Nom (A-Z)</option>
+        <option value="time">Temps de préparation</option>
+      </select>
+    </div>
+
+    <!-- Section Recettes -->
+    <div *ngIf="activeTab === 'recettes'" class="recettes-section">
+      <!-- 🔥 NOUVEAU : HEADER AVEC BOUTON AJOUTER -->
+      <div class="recipes-header">
+        <div class="recipes-header-text">
+          <h2>Gestion des recettes</h2>
+          <p>Total : {{ totalRecipes }} recettes</p>
+        </div>
+        <a routerLink="/recipes/add" class="btn-add">
+          ➕ Nouvelle Recette
+        </a>
+      </div>
+
+      <div *ngIf="isLoadingRecipes" class="loader">
+        Chargement des recettes...
+      </div>
+
+      <div *ngIf="recipesError" class="error">
+        {{ recipesError }}
+      </div>
+
+      <!-- GRID DE RECETTES AU FORMAT "CARDS" -->
+      <div 
+        class="recipes-grid" 
+        *ngIf="!isLoadingRecipes && recipes.length; else noAdminRecipes"
+      >
+        <div class="recipe-card" *ngFor="let r of recipes">
+
+          <!-- IMAGE -->
+          <div class="recipe-image-container">
+            <img
+              [src]="r.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'"
+              [alt]="r.title"
+              class="recipe-image"
+            />
+
+            <div class="image-overlay">
+              <span class="category-badge">
+                {{ r.categoryName || 'Plat' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- CONTENU DE LA CARD -->
+          <div class="recipe-card-body">
+            <h3 class="recipe-title">{{ r.title }}</h3>
+
+            <div class="recipe-rating">
+              <span class="stars">
+                ⭐ {{ r.favoritesCount || 0 }}
+              </span>
+              <span class="rating-text">favoris</span>
+            </div>
+
+            <p class="recipe-description">
+              {{ r.description }}
+            </p>
+
+            <div class="recipe-meta">
+              <span class="meta-badge">
+                🛒 {{ r.ingredients?.length || 0 }}
+              </span>
+              <span class="meta-badge">
+                ⏱️ {{ r.preparationTime }} min
+              </span>
+              <span class="meta-badge">
+                👥 {{ r.servings }}
+              </span>
+            </div>
+
+            <div class="recipe-tags" *ngIf="r.ingredients?.length">
+              <div class="ingredients-scroll">
+                <span
+                  class="ingredient-chip"
+                  *ngFor="let ing of r.ingredients.slice(0, 3)"
+                >
+                  {{ ing.ingredientName || 'Ingrédient' }}
+                </span>
+
+                <span
+                  class="ingredient-more"
+                  *ngIf="r.ingredients.length > 3"
+                >
+                  +{{ r.ingredients.length - 3 }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 PIED DE LA CARD : ACTIONS ADMIN (3 BOUTONS) -->
+          <div class="recipe-card-footer">
+            <button 
+              class="btn-action btn-view" 
+              [routerLink]="['/recipes/detail', r.id]"
+            >
+              👁️ Voir
+            </button>
+
+            <button 
+              class="btn-action btn-edit" 
+              [routerLink]="['/recipes/edit', r.id]"
+            >
+              ✏️ Modifier
+            </button>
+
+            <button 
+              class="btn-action btn-delete" 
+              (click)="onDeleteRecipe(r.id)"
+            >
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noAdminRecipes>
+        <div class="empty-state" *ngIf="!isLoadingRecipes && !recipes.length">
+          <p>📭 Aucune recette pour le moment.</p>
+          <a routerLink="/recipes/add" class="btn-add">
+            ➕ Créer ma première recette
+          </a>
+        </div>
+      </ng-template>
+
+    </div>
+
+    <!-- Section Utilisateurs -->
+    <div *ngIf="activeTab === 'utilisateurs'" class="utilisateurs-section">
+      <h2>Gestion des utilisateurs</h2>
+      <p>Total : {{ totalUsers }} utilisateurs</p>
+
+      <div *ngIf="isLoadingUsers" class="loader">
+        Chargement des utilisateurs...
+      </div>
+
+      <div *ngIf="usersError" class="error">
+        {{ usersError }}
+      </div>
+
+      <!-- NOUVEAU LAYOUT : CARTES UTILISATEURS -->
+      <div
+        class="users-grid"
+        *ngIf="!isLoadingUsers && users.length; else noUsers"
+      >
+        <div class="user-card" *ngFor="let u of users">
+          <!-- HEADER -->
+          <div class="user-card-header">
+            <div class="user-avatar-circle">
+              {{ u.username | slice:0:1 | uppercase }}
+            </div>
+
+            <div class="user-header-text">
+              <div class="user-username">{{ u.username }}</div>
+              <div class="user-fullname">
+                {{ u.firstName || '-' }} {{ u.lastName || '' }}
+              </div>
+            </div>
+
+            <span
+              class="user-role-badge"
+              [ngClass]="{
+                'user-role-admin': u.role === 'ADMIN',
+                'user-role-user': u.role === 'USER'
+              }"
+            >
+              {{ u.role === 'ADMIN' ? 'Admin' : 'Utilisateur' }}
+            </span>
+          </div>
+
+          <!-- INFOS -->
+          <div class="user-card-body">
+            <div class="user-info-row">
+              <span class="user-label">Email</span>
+              <span class="user-value">{{ u.email }}</span>
+            </div>
+
+            <div class="user-info-row">
+              <span class="user-label">Prénom</span>
+              <span class="user-value">{{ u.firstName || '-' }}</span>
+            </div>
+
+            <div class="user-info-row">
+              <span class="user-label">Nom</span>
+              <span class="user-value">{{ u.lastName || '-' }}</span>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="user-card-footer">
+            <button class="btn-action btn-delete" (click)="onDeleteUser(u.id)">
+              Supprimer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noUsers>
+        <p *ngIf="!isLoadingUsers && !users.length">
+          Aucun utilisateur pour le moment.
+        </p>
+      </ng-template>
+
+    </div>
+  </div>
+</div>
