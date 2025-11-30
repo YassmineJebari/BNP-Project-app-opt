@@ -4,7 +4,14 @@
   <div class="recipe-hero-green">
     <div class="hero-green-pattern"></div>
     <div class="hero-image-section" *ngIf="recette.imageUrl">
-      <img [src]="recette.imageUrl" [alt]="recette.title" class="hero-image-blend" />
+      <img 
+  [src]="recette.imageUrl" 
+  [alt]="recette.title" 
+  class="hero-image-blend"
+  loading="lazy"
+  width="1200"
+  height="800"
+/>
     </div>
     <div class="hero-content-overlay">
       <div class="hero-icon-big">🍽️</div>

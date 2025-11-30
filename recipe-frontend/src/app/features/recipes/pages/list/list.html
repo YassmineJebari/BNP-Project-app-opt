@@ -50,7 +50,10 @@
           [src]="recette.imageUrl || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'" 
           [alt]="recette.title"
           class="recipe-image"
-        />
+          loading="lazy"
+          width="800"
+          height="600"
+/>
         <div class="image-overlay">
           <span class="category-badge">{{ recette.categoryName || 'Plat' }}</span>
         </div>
