@@ -1,0 +1,39 @@
+
+<nav class="navbar">
+  <div class="navbar-left">
+    <span class="brand">logo</span>
+  </div>
+
+  <div class="navbar-center">
+    <input type="text" placeholder="Search..." class="search-input">
+    <i class="material-icons search-icon">search</i>
+  </div>
+
+  <ul class="navbar-right">
+    <li>
+      <a routerLink="../../recipes" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Recettes
+      </a>
+    </li>
+    <li>
+      <a routerLink="../../auth/sign-in" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Se connecter
+      </a>
+    </li>
+    <li>
+      <a routerLink="../../auth/sign-up" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        S'inscrire
+      </a>
+    </li>
+  </ul>
+  <!-- BOUTON DARK MODE -->
+<button 
+  class="theme-toggle" 
+  (click)="themeService.toggleDarkMode()"
+  [attr.aria-label]="themeService.isDarkMode() ? 'Mode clair' : 'Mode sombre'"
+>
+  <span>{{ themeService.isDarkMode() ? '☀️' : '🌙' }}</span>
+  <span>{{ themeService.isDarkMode() ? 'Clair' : 'Sombre' }}</span>
+</button>
+</nav>
+

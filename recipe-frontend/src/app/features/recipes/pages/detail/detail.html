@@ -1,0 +1,195 @@
+<div class="detail-wrapper" *ngIf="recette">
+
+  <!-- HERO SECTION avec IMAGE et background VERT -->
+  <div class="recipe-hero-green">
+    <div class="hero-green-pattern"></div>
+    <div class="hero-image-section" *ngIf="recette.imageUrl">
+      <img 
+  [src]="imageOptimization.getOptimizedImageUrl(recette.imageUrl)" 
+  [alt]="recette.title" 
+  class="hero-image-blend"
+  loading="lazy"
+  width="1200"
+  height="800"
+/>
+    </div>
+    <div class="hero-content-overlay">
+      <div class="hero-icon-big">🍽️</div>
+      <div class="hero-text-white">
+        <h1 class="recipe-main-title-white">{{ recette.title }}</h1>
+        
+        <!-- RATING STARS dans le hero -->
+        <div class="hero-rating">
+          <span class="stars-big">
+            <span *ngFor="let star of [1,2,3,4,5]" class="star-big" [class.filled]="star <= (recette.isFavorite ? 5 : 0)">
+              {{ star <= (recette.isFavorite ? 5 : 0) ? '⭐' : '☆' }}
+            </span>
+          </span>
+          <span class="rating-text-white">({{ comments.length }}) avis</span>
+        </div>
+
+        <div class="recipe-badges-white">
+          <span class="badge-white badge-time">⏱️ {{ recette.preparationTime || 30 }} min</span>
+          <span class="badge-white badge-portions">👥 {{ recette.servings || 4 }} portions</span>
+          <span class="badge-white badge-difficulty">📊 {{ recette.difficulty || 'FACILE' }}</span>
+          <button 
+            class="btn-favorite-detail" 
+            [class.is-favorite]="recette.isFavorite"
+            (click)="toggleFavorite()"
+          >
+            {{ recette.isFavorite ? '❤️' : '🤍' }} 
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="detail-grid">
+
+    <!-- TIMER DE CUISINE -->
+    <div class="detail-section timer-section">
+      <h2 class="section-title">
+        <span class="title-icon">⏱️</span>
+        Temps de préparation
+      </h2>
+      <div class="timer-container">
+        <div class="timer-display">
+          <span class="timer-digits">{{ formatTime(timeLeft) }}</span>
+        </div>
+        <div class="timer-controls">
+          <button class="btn-timer" (click)="startTimer()" *ngIf="!timerRunning">▶ Démarrer</button>
+          <button class="btn-timer btn-pause" (click)="pauseTimer()" *ngIf="timerRunning">⏸ Pause</button>
+          <button class="btn-timer btn-reset" (click)="resetTimer()">Réinitialiser</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTE DE COURSES -->
+    <div class="detail-section shopping-list-section">
+      <h2 class="section-title">
+        <span class="title-icon">🛒</span>
+        Ingrédients
+      </h2>
+      <div class="shopping-actions">
+        <button class="btn btn-primary" (click)="generateShoppingList()">📝 Générer la liste</button>
+        <button class="btn btn-secondary" (click)="printShoppingList()" *ngIf="shoppingList.length > 0">🖨️ Imprimer</button>
+      </div>
+      <ul class="shopping-list" *ngIf="shoppingList.length > 0">
+        <li *ngFor="let item of shoppingList; let i = index" class="shopping-item">
+          <input type="checkbox" [id]="'item-' + i" [(ngModel)]="item.checked" class="shopping-checkbox"/>
+          <label [for]="'item-' + i" [class.checked]="item.checked">{{ item.name }}</label>
+        </li>
+      </ul>
+    </div>
+
+    <!-- VIDEO SECTION -->
+    <div class="detail-section video-section" *ngIf="recette.videoUrl">
+      <h2 class="section-title">
+        <span class="title-icon">🎥</span>
+        Tutoriel Vidéo
+      </h2>
+      <div class="video-container">
+        <iframe
+          [src]="getSafeVideoUrl(recette.videoUrl)"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="detail-section">
+      <h2 class="section-title">
+        <span class="title-icon">📝</span>
+        Description
+      </h2>
+      <div class="description-card">
+        <p class="description-text">{{ recette.description }}</p>
+      </div>
+    </div>
+
+    <!-- ÉTAPES DE PRÉPARATION -->
+    <div class="detail-section">
+      <h2 class="section-title">
+        <span class="title-icon">👨‍🍳</span>
+        Étapes de Préparation
+      </h2>
+      <div class="steps-container">
+        <div class="step-card" *ngFor="let step of recette.steps.split('\n'); let i = index">
+          <div class="step-number-wrapper">
+            <span class="step-number">{{ i + 1 }}</span>
+          </div>
+          <div class="step-content">
+            <p class="step-text">{{ step }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="detail-section comments-section">
+      <h2 class="section-title">
+        <span class="title-icon">💬</span>
+        Commentaires & Avis <span class="comments-count">({{ comments.length }})</span>
+      </h2>
+
+      <!-- ADD COMMENT FORM -->
+      <div class="add-comment-form">
+        <h3 class="form-subtitle">Laissez votre avis</h3>
+        <div class="rating-input">
+          <span>Votre note :</span>
+          <span class="stars-input">
+            <span 
+              *ngFor="let star of [1,2,3,4,5]" 
+              class="star-input" 
+              [class.selected]="star <= newComment.rating"
+              (click)="setRating(star)"
+            >
+              {{ star <= newComment.rating ? '⭐' : '☆' }}
+            </span>
+          </span>
+        </div>
+        <div class="comment-form">
+          <input type="text" class="form-input" [(ngModel)]="newComment.author" placeholder="Votre nom"/>
+          <textarea class="form-textarea" [(ngModel)]="newComment.text" placeholder="Votre commentaire..." rows="3"></textarea>
+          <button class="btn btn-primary" (click)="addComment()" [disabled]="!newComment.author || !newComment.text || newComment.rating === 0">
+            💬 Publier mon avis
+          </button>
+        </div>
+      </div>
+
+      <!-- COMMENTS LIST -->
+      <div class="comments-list" *ngIf="comments.length > 0">
+        <div class="comment-card" *ngFor="let comment of comments">
+          <div class="comment-header">
+            <div class="comment-avatar">{{ comment.author.charAt(0).toUpperCase() }}</div>
+            <div class="comment-meta">
+              <strong class="comment-author">{{ comment.author }}</strong>
+              <div class="comment-rating">
+                <span *ngFor="let star of [1,2,3,4,5]" class="star-small">
+                  {{ star <= comment.rating ? '⭐' : '☆' }}
+                </span>
+              </div>
+              <span class="comment-date">{{ formatDate(comment.date) }}</span>
+            </div>
+          </div>
+          <p class="comment-text">{{ comment.text }}</p>
+        </div>
+      </div>
+
+      <p class="no-comments" *ngIf="comments.length === 0">
+        Aucun commentaire pour le moment. Soyez le premier à donner votre avis !
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING STATE -->
+<div class="loading-container" *ngIf="!recette">
+  <div class="spinner"></div>
+  <p class="loading-text">Chargement de la recette...</p>
+</div>
+
+<app-footer></app-footer>
