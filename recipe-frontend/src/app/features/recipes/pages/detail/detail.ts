@@ -8,7 +8,7 @@ import { RecipeService } from '../../services/recipe.service';
 import { interval, Subscription } from 'rxjs';
 import { FooterComponent } from '../../../../shared/components/footer/footer';
 import { RecipeDTO } from '../../models/recipe.models';
-
+import { ImageOptimizationService } from '../../../../shared/services/image-optimization.service';
 export interface RecipeComment {
   author: string;
   text: string;
@@ -48,7 +48,8 @@ export class Detail implements OnInit, OnDestroy {
     private recipeService: RecipeService,
     private route: ActivatedRoute,
     private router: Router,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    public imageOptimization: ImageOptimizationService
   ) {}
 
   ngOnInit() {

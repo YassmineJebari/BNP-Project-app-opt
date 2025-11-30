@@ -7,7 +7,7 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
 import { FooterComponent } from '../../../../shared/components/footer/footer';
 import { RecipeDTO } from '../../models/recipe.models';
-
+import { ImageOptimizationService } from '../../../../shared/services/image-optimization.service';
 @Component({
   selector: 'app-list',
   standalone: true,
@@ -31,7 +31,8 @@ export class List implements OnInit {
 
   constructor(
     private recipeService: RecipeService,
-    private authService: AuthService
+    private authService: AuthService,
+    public imageOptimization: ImageOptimizationService
   ) {}
 
   ngOnInit() {

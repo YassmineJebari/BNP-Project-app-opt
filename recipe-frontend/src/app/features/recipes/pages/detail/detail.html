@@ -5,7 +5,7 @@
     <div class="hero-green-pattern"></div>
     <div class="hero-image-section" *ngIf="recette.imageUrl">
       <img 
-  [src]="recette.imageUrl" 
+  [src]="imageOptimization.getOptimizedImageUrl(recette.imageUrl)" 
   [alt]="recette.title" 
   class="hero-image-blend"
   loading="lazy"
