@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-
+import { ThemeService } from '../../services/theme.service';
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -13,7 +13,9 @@ export class NavbarComponent {
   isMenuOpen = false;
   isLoggedIn = false; // Tu pourras connecter ça à ton AuthService plus tard
 
-  constructor(private router: Router) {
+  constructor(private router: Router,
+    public themeService: ThemeService
+  ) {
     // Vérifie si l'utilisateur est connecté (à adapter selon ton AuthService)
     this.checkLoginStatus();
   }

@@ -26,5 +26,14 @@
       </a>
     </li>
   </ul>
+  <!-- BOUTON DARK MODE -->
+<button 
+  class="theme-toggle" 
+  (click)="themeService.toggleDarkMode()"
+  [attr.aria-label]="themeService.isDarkMode() ? 'Mode clair' : 'Mode sombre'"
+>
+  <span>{{ themeService.isDarkMode() ? '☀️' : '🌙' }}</span>
+  <span>{{ themeService.isDarkMode() ? 'Clair' : 'Sombre' }}</span>
+</button>
 </nav>
 

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from './shared/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -21,4 +22,7 @@ export class App {
     { title: 'Angular Language Service', link: 'https://angular.dev/tools/language-service' },
     { title: 'Angular DevTools', link: 'https://angular.dev/tools/devtools' },
   ];
+  constructor(private themeService: ThemeService) {
+  // Le service s'initialise automatiquement
+}
 }

@@ -16,3 +16,121 @@ main {
   padding-top: 50px;
   min-height: calc(100vh - 80px);
 }
+/* ========================================
+   VARIABLES CSS POUR MODE CLAIR/SOMBRE
+======================================== */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --card-bg: #ffffff;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #444444;
+  --card-bg: #2d2d2d;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   STYLES DE BASE
+======================================== */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ========================================
+   CARDS (Cartes de recettes)
+======================================== */
+.recipe-card,
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   FORMULAIRES
+======================================== */
+input,
+textarea,
+select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+/* ========================================
+   BOUTONS
+======================================== */
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+body.dark-mode .btn-primary {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+/* ========================================
+   NAVBAR
+======================================== */
+nav,
+.navbar {
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   PAGE WRAPPER
+======================================== */
+.page-wrapper,
+.form-container {
+  background-color: var(--bg-primary);
+}
+
+/* ========================================
+   BOUTON TOGGLE DARK MODE
+======================================== */
+.theme-toggle {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.theme-toggle:hover {
+  background-color: var(--border-color);
+  transform: scale(1.05);
+}
