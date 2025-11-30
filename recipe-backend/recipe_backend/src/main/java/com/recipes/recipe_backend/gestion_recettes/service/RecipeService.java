@@ -11,6 +11,8 @@ import com.recipes.recipe_backend.gestion_utilisateur.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,8 @@ public class RecipeService {
                 .collect(Collectors.toList());
     }
     
+    // ✅ CACHE : Met en cache le résultat
+    @Cacheable(value = "recipes", key = "#id")
     public RecipeDTO getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
@@ -115,7 +119,6 @@ public class RecipeService {
         recipe.setDifficulty(Difficulty.valueOf(request.getDifficulty().toUpperCase()));
         recipe.setImageUrl(request.getImageUrl());
         recipe.setSteps(request.getSteps());
-        //recipe.setServings(request.getServings());
         recipe.setUser(user);
         
         // Associer la catégorie si fournie
@@ -144,13 +147,11 @@ public class RecipeService {
             }
         }
         
-        // Mettre à jour le compteur de recettes de l'utilisateur
-        //user.setRecipesCount(user.getRecipesCount() + 1);
-        //userRepository.save(user);
-        
         return convertToDTO(savedRecipe);
     }
     
+    // ✅ CACHE : Invalide le cache quand on modifie
+    @CacheEvict(value = "recipes", key = "#id")
     public RecipeDTO updateRecipe(Long id, UpdateRecipeRequest request, String email) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
@@ -202,14 +203,13 @@ public class RecipeService {
         Recipe updated = recipeRepository.save(recipe);
         return convertToDTO(updated);
     }
-
+    
+    // ✅ CACHE : Invalide le cache quand l'admin modifie
+    @CacheEvict(value = "recipes", key = "#id")
     public RecipeDTO updateRecipeByAdmin(Long id, UpdateRecipeRequest request) {
-        // Récupérer la recette
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
         
-        // ⚠️ Ici PAS de vérification de l'auteur : l'admin peut tout modifier
-
         // Mettre à jour les champs
         if (request.getTitle() != null) {
             recipe.setTitle(request.getTitle());
@@ -245,10 +245,8 @@ public class RecipeService {
 
         // Mettre à jour les ingrédients si fournis
         if (request.getIngredients() != null) {
-            // Supprimer les anciens ingrédients
             recipeIngredientRepository.deleteByRecipeId(id);
 
-            // Ajouter les nouveaux
             for (RecipeIngredientDTO ingredientDTO : request.getIngredients()) {
                 Ingredient ingredient = ingredientRepository.findById(ingredientDTO.getIngredientId())
                         .orElseThrow(() -> new RuntimeException("Ingrédient non trouvé"));
@@ -263,12 +261,12 @@ public class RecipeService {
             }
         }
 
-        // Sauvegarder et retourner le DTO
         Recipe updated = recipeRepository.save(recipe);
         return convertToDTO(updated);
     }
-
-
+    
+    // ✅ CACHE : Invalide le cache quand on supprime
+    @CacheEvict(value = "recipes", key = "#id")
     public void deleteRecipe(Long id, String username) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
@@ -278,22 +276,14 @@ public class RecipeService {
             throw new RuntimeException("Vous n'êtes pas autorisé à supprimer cette recette");
         }
         
-        // Décrémenter le compteur de recettes de l'utilisateur
-        //User user = recipe.getUser();
-        //user.setRecipesCount(Math.max(0, user.getRecipesCount() - 1));
-        //userRepository.save(user);
-        
         recipeRepository.deleteById(id);
     }
     
+    // ✅ CACHE : Invalide le cache quand l'admin supprime
+    @CacheEvict(value = "recipes", key = "#id")
     public void deleteRecipeByAdmin(Long id) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
-        
-        // Décrémenter le compteur de recettes de l'utilisateur
-        //User user = recipe.getUser();
-        //user.setRecipesCount(Math.max(0, user.getRecipesCount() - 1));
-        //userRepository.save(user);
         
         recipeRepository.deleteById(id);
     }
