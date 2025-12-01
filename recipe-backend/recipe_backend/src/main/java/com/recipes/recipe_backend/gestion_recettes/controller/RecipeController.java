@@ -2,6 +2,7 @@ package com.recipes.recipe_backend.gestion_recettes.controller;
 
 import com.recipes.recipe_backend.dto.CreateRecipeRequest;
 import com.recipes.recipe_backend.dto.RecipeDTO;
+import com.recipes.recipe_backend.dto.RecipeSummaryDTO;
 import com.recipes.recipe_backend.dto.UpdateRecipeRequest;
 import com.recipes.recipe_backend.gestion_recettes.service.RecipeService;
 import com.recipes.recipe_backend.gestion_utilisateur.entity.User;
@@ -30,7 +31,7 @@ public class RecipeController {
     
     // GET : Toutes les recettes (accessible à tous)
     @GetMapping
-    public ResponseEntity<List<RecipeDTO>> getAllRecipes() {
+    public ResponseEntity<List<RecipeSummaryDTO>> getAllRecipes() {
         return ResponseEntity.ok(recipeService.getAllRecipes());
     }
     

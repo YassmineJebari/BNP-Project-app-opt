@@ -3,6 +3,7 @@ package com.recipes.recipe_backend.gestion_recettes.service;
 import com.recipes.recipe_backend.dto.CreateRecipeRequest;
 import com.recipes.recipe_backend.dto.RecipeDTO;
 import com.recipes.recipe_backend.dto.RecipeIngredientDTO;
+import com.recipes.recipe_backend.dto.RecipeSummaryDTO;
 import com.recipes.recipe_backend.dto.UpdateRecipeRequest;
 import com.recipes.recipe_backend.gestion_recettes.entity.*;
 import com.recipes.recipe_backend.gestion_recettes.repository.*;
@@ -38,9 +39,9 @@ public class RecipeService {
     private RecipeIngredientRepository recipeIngredientRepository;
     
     // 1. Optimiser getAllRecipes()
-    public List<RecipeDTO> getAllRecipes() {
+    public List<RecipeSummaryDTO> getAllRecipes() {
         return recipeRepository.findAllWithDetails().stream()
-                .map(this::convertToDTO)
+                .map(this::convertToSummaryDTO)
                 .collect(Collectors.toList());
     }
     
@@ -334,5 +335,44 @@ public class RecipeService {
         dto.setIngredients(ingredientsDTO);
         
         return dto;
+    }
+
+    private RecipeSummaryDTO convertToSummaryDTO(Recipe recipe) {
+        RecipeSummaryDTO dto = new RecipeSummaryDTO();
+
+        dto.setId(recipe.getId());
+        dto.setTitle(recipe.getTitle());
+        dto.setDescription(recipe.getDescription());
+        dto.setPreparationTime(recipe.getPreparationTime());
+        dto.setCookingTime(recipe.getCookingTime());
+        dto.setImageUrl(recipe.getImageUrl());
+        dto.setServings(recipe.getServings());
+        dto.setViewsCount(recipe.getViewsCount());
+        dto.setFavoritesCount(recipe.getFavoritesCount());
+        dto.setCreatedAt(recipe.getCreatedAt());
+        
+        // Informations utilisateur (déjà chargées avec fetch join)
+        
+        // Catégorie (déjà chargée avec fetch join)
+        if (recipe.getCategory() != null) {
+            dto.setCategoryName(recipe.getCategory().getName());
+        }
+        
+        // Ingrédients (déjà chargés avec fetch join)
+        List<RecipeIngredientDTO> ingredientsDTO = new ArrayList<>();
+        if (recipe.getRecipeIngredients() != null) {
+            for (RecipeIngredient ri : recipe.getRecipeIngredients()) {
+                RecipeIngredientDTO ingredientDTO = new RecipeIngredientDTO();
+                ingredientDTO.setId(ri.getId());
+                ingredientDTO.setIngredientId(ri.getIngredient().getId());
+                ingredientDTO.setIngredientName(ri.getIngredient().getName());
+                ingredientDTO.setQuantity(ri.getQuantity());
+                ingredientDTO.setUnit(ri.getUnit());
+                ingredientsDTO.add(ingredientDTO);
+            }
+        }
+        dto.setIngredients(ingredientsDTO);
+
+        return dto; 
     }
 }
