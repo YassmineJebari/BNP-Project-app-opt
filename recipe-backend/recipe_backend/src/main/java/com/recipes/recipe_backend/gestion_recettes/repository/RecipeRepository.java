@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
@@ -44,4 +45,19 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     // Temps de préparation total inférieur à X minutes
     @Query("SELECT r FROM Recipe r WHERE (r.preparationTime + r.cookingTime) <= :maxTime")
     List<Recipe> findByMaxTotalTime(@Param("maxTime") Integer maxTime);
+
+    @Query("SELECT DISTINCT r FROM Recipe r " +
+       "LEFT JOIN FETCH r.user " +
+       "LEFT JOIN FETCH r.category " +
+       "LEFT JOIN FETCH r.recipeIngredients ri " +
+       "LEFT JOIN FETCH ri.ingredient")
+    List<Recipe> findAllWithDetails();
+
+    @Query("SELECT DISTINCT r FROM Recipe r " +
+        "LEFT JOIN FETCH r.user " +
+        "LEFT JOIN FETCH r.category " +
+        "LEFT JOIN FETCH r.recipeIngredients ri " +
+        "LEFT JOIN FETCH ri.ingredient " +
+        "WHERE r.id = :id")
+    Optional<Recipe> findByIdWithDetails(@Param("id") Long id);
 }

@@ -35,14 +35,16 @@ public class RecipeService {
     @Autowired
     private RecipeIngredientRepository recipeIngredientRepository;
     
+    // 1. Optimiser getAllRecipes()
     public List<RecipeDTO> getAllRecipes() {
-        return recipeRepository.findAll().stream()
+        return recipeRepository.findAllWithDetails().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
+    // 2. Optimiser getRecipeById()
     public RecipeDTO getRecipeById(Long id) {
-        Recipe recipe = recipeRepository.findById(id)
+        Recipe recipe = recipeRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
         
         // Incrémenter le nombre de vues
@@ -298,6 +300,7 @@ public class RecipeService {
         recipeRepository.deleteById(id);
     }
     
+    // 3. Simplifier convertToDTO (plus besoin de charger les ingrédients)
     private RecipeDTO convertToDTO(Recipe recipe) {
         RecipeDTO dto = new RecipeDTO();
         dto.setId(recipe.getId());
@@ -314,27 +317,28 @@ public class RecipeService {
         dto.setCreatedAt(recipe.getCreatedAt());
         dto.setUpdatedAt(recipe.getUpdatedAt());
         
-        // Informations utilisateur
+        // Informations utilisateur (déjà chargées avec fetch join)
         dto.setUserId(recipe.getUser().getId());
         dto.setUsername(recipe.getUser().getUsername());
         
-        // Catégorie
+        // Catégorie (déjà chargée avec fetch join)
         if (recipe.getCategory() != null) {
             dto.setCategoryId(recipe.getCategory().getId());
             dto.setCategoryName(recipe.getCategory().getName());
         }
         
-        // Ingrédients
+        // Ingrédients (déjà chargés avec fetch join)
         List<RecipeIngredientDTO> ingredientsDTO = new ArrayList<>();
-        List<RecipeIngredient> recipeIngredients = recipeIngredientRepository.findByRecipeId(recipe.getId());
-        for (RecipeIngredient ri : recipeIngredients) {
-            RecipeIngredientDTO ingredientDTO = new RecipeIngredientDTO();
-            ingredientDTO.setId(ri.getId());
-            ingredientDTO.setIngredientId(ri.getIngredient().getId());
-            ingredientDTO.setIngredientName(ri.getIngredient().getName());
-            ingredientDTO.setQuantity(ri.getQuantity());
-            ingredientDTO.setUnit(ri.getUnit());
-            ingredientsDTO.add(ingredientDTO);
+        if (recipe.getRecipeIngredients() != null) {
+            for (RecipeIngredient ri : recipe.getRecipeIngredients()) {
+                RecipeIngredientDTO ingredientDTO = new RecipeIngredientDTO();
+                ingredientDTO.setId(ri.getId());
+                ingredientDTO.setIngredientId(ri.getIngredient().getId());
+                ingredientDTO.setIngredientName(ri.getIngredient().getName());
+                ingredientDTO.setQuantity(ri.getQuantity());
+                ingredientDTO.setUnit(ri.getUnit());
+                ingredientsDTO.add(ingredientDTO);
+            }
         }
         dto.setIngredients(ingredientsDTO);
         
