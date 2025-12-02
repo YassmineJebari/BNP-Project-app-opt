@@ -10,6 +10,8 @@ import {
   CategoryDTO,
 } from '../models/recipe.models';
 
+import { PageResponse } from '../../../shared/models/page.model';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +24,15 @@ export class RecipeService {
   // GET : Toutes les recettes
   getAll(): Observable<RecipeDTO[]> {
     return this.http.get<RecipeDTO[]>(this.apiUrl);
+  }
+
+  // GET paginé : /api/recipes/paged?page=X&size=Y
+  getPaged(page: number, size: number): Observable<PageResponse<RecipeDTO>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<PageResponse<RecipeDTO>>(`${this.apiUrl}/paged`, { params });
   }
 
   // GET : Une recette par ID

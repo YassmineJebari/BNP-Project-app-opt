@@ -7,6 +7,8 @@ import { AuthService } from '../../../auth/services/auth.service';
 import { RecipeService } from '../../services/recipe.service';
 import { FooterComponent } from '../../../../shared/components/footer/footer';
 import { RecipeDTO } from '../../models/recipe.models';
+import { PageResponse } from '../../../../shared/models/page.model';
+
 
 @Component({
   selector: 'app-list',
@@ -29,6 +31,15 @@ export class List implements OnInit {
   // Liste des catégories uniques (pour filtrage)
   categories: string[] = [];
 
+  // Pagination backend
+  recipesPage = 0;
+  recipesPageSize = 8;
+  recipesTotalPages = 0;
+
+  get canLoadMoreRecipes(): boolean {
+    return this.recipesPage + 1 < this.recipesTotalPages;
+  }
+
   constructor(
     private recipeService: RecipeService,
     private authService: AuthService
@@ -41,15 +52,50 @@ export class List implements OnInit {
     console.log('🔗 isLoggedIn dans list:', this.isLoggedIn());
   }
 
-  // Charger toutes les recettes depuis le service
-  loadRecipes() {
-    this.recipeService.getAll().subscribe((data: RecipeDTO[]) => {
-      this.recettes = data;
-      // Extraire les catégories uniques pour le filtrage
-      //this.categories = Array.from(new Set(data.map(r => r.categoryName).filter(Boolean)));
-      this.categories = Array.from(new Set(data.map(r => r.categoryName).filter((c): c is string => !!c)));
-      this.filterRecipes();
-    });
+  // Charger les recettes paginées depuis le backend
+  loadRecipes(reset: boolean = true) {
+    if (reset) {
+      this.recettes = [];
+      this.filteredRecettes = [];
+      this.recipesPage = 0;
+    }
+
+    this.recipeService.getPaged(this.recipesPage, this.recipesPageSize)
+      .subscribe({
+        next: (page: PageResponse<RecipeDTO>) => {
+          const pageContent = page.content.map(r => ({
+            ...r,
+            isFavorite: r.isFavorite ?? false
+          }));
+
+          // Ajout des recettes de la page à la liste globale
+          this.recettes = [...this.recettes, ...pageContent];
+
+          // Mettre à jour les catégories uniques
+          this.categories = Array.from(
+            new Set(
+              this.recettes
+                .map(r => r.categoryName)
+                .filter((c): c is string => !!c)
+            )
+          );
+
+          this.recipesTotalPages = page.totalPages;
+          this.recipesPage = page.number;
+
+          this.filterRecipes();
+        },
+        error: (err) => {
+          console.error('Erreur chargement recettes /recipes', err);
+        }
+      });
+  }
+
+  // Appelé par le bouton "Voir plus de recettes"
+  loadMoreRecipes() {
+    if (!this.canLoadMoreRecipes) return;
+    this.recipesPage += 1;
+    this.loadRecipes(false);
   }
 
   // Filtrer les recettes
@@ -141,7 +187,7 @@ export class List implements OnInit {
   deleteRecipe() {
     if (this.recetteToDelete?.id) {
       this.recipeService.delete(this.recetteToDelete.id).subscribe(() => {
-        this.loadRecipes();
+        this.loadRecipes(true);
         this.recetteToDelete = undefined;
       });
     }

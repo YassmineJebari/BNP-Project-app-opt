@@ -18,8 +18,6 @@ type TabType = 'recettes' | 'utilisateurs' | null;
 })
 export class AdminLayoutComponent implements OnInit {
   user: User | null = null;
-  totalRecipes = 0;
-  totalUsers = 0;
   
   // Gestion des onglets
   activeTab: TabType = 'recettes';
@@ -28,11 +26,29 @@ export class AdminLayoutComponent implements OnInit {
   recipes: RecipeDTO[] = [];
   isLoadingRecipes = false;
   recipesError = '';
+  totalRecipes = 0;
+
+  // Pagination recettes
+  recipesPage = 0;
+  recipesPageSize = 8;
+  recipesTotalPages = 0;
+  get canLoadMoreRecipes(): boolean {
+    return this.recipesPage + 1 < this.recipesTotalPages;
+  }
 
   // Données pour l'onglet Utilisateurs
   users: User[] = [];
   isLoadingUsers = false;
   usersError = '';
+  totalUsers = 0;
+
+  // Pagination users
+  usersPage = 0;
+  usersPageSize = 8;
+  usersTotalPages = 0;
+  get canLoadMoreUsers(): boolean {
+    return this.usersPage + 1 < this.usersTotalPages;
+  }
 
   constructor(
     private authService: AuthService,
@@ -63,14 +79,22 @@ export class AdminLayoutComponent implements OnInit {
     return this.activeTab === 'recettes';
   }
 
-  private loadRecipes(): void {
+  private loadRecipes(reset: boolean = true): void {
+    if (reset) {
+      this.recipes = [];
+      this.recipesPage = 0;
+    }
+
     this.isLoadingRecipes = true;
     this.recipesError = '';
 
-    this.recipeService.getAll().subscribe({
-      next: (recipes) => {
-        this.recipes = recipes;
-        this.totalRecipes = recipes.length;
+    this.recipeService.getPaged(this.recipesPage, this.recipesPageSize).subscribe({
+      next: (page) => {
+        // On ajoute les nouvelles recettes à la liste existante
+        this.recipes = [...this.recipes, ...page.content];
+        this.totalRecipes = page.totalElements;
+        this.recipesTotalPages = page.totalPages;
+        this.recipesPage = page.number;
         this.isLoadingRecipes = false;
       },
       error: (error) => {
@@ -81,14 +105,27 @@ export class AdminLayoutComponent implements OnInit {
     });
   }
 
-  private loadUsers(): void {
+  loadMoreRecipes(): void {
+    if (!this.canLoadMoreRecipes) return;
+    this.recipesPage += 1;
+    this.loadRecipes(false);
+  }
+
+  private loadUsers(reset: boolean = true): void {
+    if (reset) {
+      this.users = [];
+      this.usersPage = 0;
+    }
+
     this.isLoadingUsers = true;
     this.usersError = '';
 
-    this.userAdminService.getAllUsers().subscribe({
-      next: (users) => {
-        this.users = users;
-        this.totalUsers = users.length;
+    this.userAdminService.getUsersPaged(this.usersPage, this.usersPageSize).subscribe({
+      next: (page) => {
+        this.users = [...this.users, ...page.content];
+        this.totalUsers = page.totalElements;
+        this.usersTotalPages = page.totalPages;
+        this.usersPage = page.number;
         this.isLoadingUsers = false;
       },
       error: (error) => {
@@ -97,6 +134,12 @@ export class AdminLayoutComponent implements OnInit {
         this.isLoadingUsers = false;
       }
     });
+  }
+
+  loadMoreUsers(): void {
+    if (!this.canLoadMoreUsers) return;
+    this.usersPage += 1;
+    this.loadUsers(false);
   }
 
 

@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 @RestController
@@ -35,7 +37,19 @@ public class UserController {
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
-    
+
+        // ===================== LISTE PAGINÉE DES UTILISATEURS (ADMIN) =====================
+
+    @GetMapping("/paged")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UserDTO>> getAllUsersPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<UserDTO> result = userService.getAllUsersPaged(page, size);
+        return ResponseEntity.ok(result);
+    }
+
     // Récupérer le profil de l'utilisateur connecté
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser() {

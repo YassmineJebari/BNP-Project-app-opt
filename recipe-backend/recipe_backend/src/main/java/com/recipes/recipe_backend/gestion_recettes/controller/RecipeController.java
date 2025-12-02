@@ -16,6 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 @RestController
@@ -41,6 +45,18 @@ public class RecipeController {
         return ResponseEntity.ok(recipeService.getRecipeById(id));
     }
     
+    
+    // ===================== PAGINATION PUBLIC =====================
+
+    @GetMapping("/paged")
+    public ResponseEntity<Page<RecipeDTO>> getAllRecipesPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<RecipeDTO> result = recipeService.getAllRecipesPaged(page, size);
+        return ResponseEntity.ok(result);
+    }
+
     // GET : Recettes d'un utilisateur
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<RecipeDTO>> getRecipesByUserId(@PathVariable Long userId) {

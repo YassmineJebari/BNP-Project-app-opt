@@ -116,6 +116,16 @@
     </div>
   </div>
 
+  <!-- BOUTON VOIR PLUS (PAGINATION BACKEND) -->
+  <div
+    class="see-more-container"
+    *ngIf="canLoadMoreRecipes && filteredRecettes.length > 0"
+  >
+    <button class="btn-see-more" (click)="loadMoreRecipes()">
+      Voir plus de recettes
+    </button>
+  </div>
+
   <!-- EMPTY STATE -->
   <ng-template #noRecipes>
     <div class="empty-state">

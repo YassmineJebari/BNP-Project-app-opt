@@ -15,6 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -290,6 +294,15 @@ public class RecipeService {
                 .orElseThrow(() -> new RuntimeException("Recette non trouvée"));
         
         recipeRepository.deleteById(id);
+    }
+
+    // ===================== PAGINATION =====================
+
+    public Page<RecipeDTO> getAllRecipesPaged(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return recipeRepository.findAll(pageable)
+                .map(this::convertToDTO);
     }
     
     // 3. Simplifier convertToDTO (plus besoin de charger les ingrédients)

@@ -552,3 +552,23 @@
 .recettes-section h2 {
   margin-top: 20px;
 }
+
+.see-more-container {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.btn-see-more {
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: none;
+  background-color: #0FAC71;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.btn-see-more:hover {
+  opacity: 0.9;
+}

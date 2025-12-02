@@ -165,6 +165,15 @@
         </div>
       </ng-template>
 
+      <!-- BOUTON VOIR PLUS RECETTES (uniquement en mode recettes) -->
+      <div
+        class="see-more-container"
+        *ngIf="canLoadMoreRecipes && !isLoadingRecipes"
+      >
+        <button class="btn-see-more" (click)="loadMoreRecipes()">
+          Voir plus de recettes
+        </button>
+      </div>
     </div>
 
     <!-- Section Utilisateurs -->
@@ -237,6 +246,16 @@
         </div>
       </div>
 
+      <!-- BOUTON VOIR PLUS UTILISATEURS (UN SEUL, SOUS LA GRID) -->
+      <div
+        class="see-more-container"
+        *ngIf="canLoadMoreUsers && !isLoadingUsers"
+      >
+        <button class="btn-see-more" (click)="loadMoreUsers()">
+          Voir plus d’utilisateurs
+        </button>
+      </div>
+      
       <ng-template #noUsers>
         <p *ngIf="!isLoadingUsers && !users.length">
           Aucun utilisateur pour le moment.
