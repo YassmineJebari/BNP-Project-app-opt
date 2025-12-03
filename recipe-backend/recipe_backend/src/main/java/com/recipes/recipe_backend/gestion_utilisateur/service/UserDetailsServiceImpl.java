@@ -3,6 +3,7 @@ package com.recipes.recipe_backend.gestion_utilisateur.service;
 import com.recipes.recipe_backend.gestion_utilisateur.entity.User;
 import com.recipes.recipe_backend.gestion_utilisateur.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,13 +18,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
     
+    // ✅ CACHE : Met en cache les UserDetails par email pour l'authentification
+    @Cacheable(value = "userDetails", key = "#email")
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'email : " + email));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), // <- ici on utilise l’email comme identifiant
+                user.getEmail(), // <- ici on utilise l'email comme identifiant
                 user.getPassword(),
                 true,
                 true,

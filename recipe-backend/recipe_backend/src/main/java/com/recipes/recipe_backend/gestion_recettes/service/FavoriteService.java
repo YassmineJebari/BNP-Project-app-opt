@@ -10,6 +10,9 @@ import com.recipes.recipe_backend.gestion_utilisateur.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +30,8 @@ public class FavoriteService {
     @Autowired
     private RecipeRepository recipeRepository;
     
+    // ✅ CACHE : Met en cache les favoris par utilisateur
+    @Cacheable(value = "favorites", key = "'user_' + #username")
     public List<FavoriteDTO> getUserFavorites(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -36,6 +41,8 @@ public class FavoriteService {
                 .collect(Collectors.toList());
     }
     
+    // ✅ CACHE : Met en cache le statut favori
+    @Cacheable(value = "favorites", key = "'status_' + #username + '_' + #recipeId")
     public boolean isFavorite(String username, Long recipeId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -43,6 +50,12 @@ public class FavoriteService {
         return favoriteRepository.existsByUserIdAndRecipeId(user.getId(), recipeId);
     }
     
+    // ✅ CACHE : Invalide plusieurs caches lors de l'ajout
+    @Caching(evict = {
+        @CacheEvict(value = "favorites", key = "'user_' + #username"),
+        @CacheEvict(value = "favorites", key = "'status_' + #username + '_' + #recipeId"),
+        @CacheEvict(value = "recipes", key = "#recipeId")
+    })
     public FavoriteDTO addFavorite(String username, Long recipeId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -69,6 +82,12 @@ public class FavoriteService {
         return convertToDTO(saved);
     }
     
+    // ✅ CACHE : Invalide plusieurs caches lors de la suppression
+    @Caching(evict = {
+        @CacheEvict(value = "favorites", key = "'user_' + #username"),
+        @CacheEvict(value = "favorites", key = "'status_' + #username + '_' + #recipeId"),
+        @CacheEvict(value = "recipes", key = "#recipeId")
+    })
     public void removeFavorite(String username, Long recipeId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));

@@ -6,6 +6,9 @@ import com.recipes.recipe_backend.dto.UserDTO;
 import com.recipes.recipe_backend.gestion_utilisateur.entity.User;
 import com.recipes.recipe_backend.gestion_utilisateur.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,37 +24,49 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    // Récupérer tous les utilisateurs (ADMIN uniquement)
+    // ✅ CACHE : Met en cache la liste complète
+    @Cacheable(value = "users", key = "'all'")
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
-    // Récupérer un utilisateur par ID
+    // ✅ CACHE : Met en cache par ID
+    @Cacheable(value = "users", key = "#id")
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         return convertToDTO(user);
     }
     
-    // Récupérer un utilisateur par username
+    // ✅ CACHE : Met en cache par username
+    @Cacheable(value = "users", key = "'username_' + #username")
     public UserDTO getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         return convertToDTO(user);
     }
     
+    // ✅ CACHE : Met en cache par email
+    @Cacheable(value = "users", key = "'email_' + #email")
     public UserDTO getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         return convertToDTO(user);
     }
 
-    // Mettre à jour le profil
+    // ✅ CACHE : Invalide plusieurs caches lors de la mise à jour du profil
+    @Caching(evict = {
+        @CacheEvict(value = "users", key = "#id"),
+        @CacheEvict(value = "users", key = "'all'"),
+        @CacheEvict(value = "userDetails", key = "@userRepository.findById(#id).orElse(null)?.email")
+    })
     public UserDTO updateProfile(Long id, UpdateProfileRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        
+        String oldEmail = user.getEmail();
         
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(request.getEmail())) {
@@ -66,10 +81,20 @@ public class UserService {
         if (request.getProfilePicture() != null) user.setProfilePicture(request.getProfilePicture());
         
         userRepository.save(user);
+        
+        // Invalider aussi l'ancien et le nouvel email si changé
+        if (!oldEmail.equals(user.getEmail())) {
+            evictUserCaches(oldEmail, user.getEmail(), user.getUsername());
+        }
+        
         return convertToDTO(user);
     }
     
-    // Changer le mot de passe
+    // ✅ CACHE : Invalide les caches lors du changement de mot de passe
+    @Caching(evict = {
+        @CacheEvict(value = "users", key = "#id"),
+        @CacheEvict(value = "userDetails", key = "@userRepository.findById(#id).orElse(null)?.email")
+    })
     public void changePassword(Long id, ChangePasswordRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -89,15 +114,28 @@ public class UserService {
         userRepository.save(user);
     }
     
-    
-    
-    
-    // Supprimer un utilisateur (ADMIN)
+    // ✅ CACHE : Invalide tous les caches lors de la suppression
+    @Caching(evict = {
+        @CacheEvict(value = "users", allEntries = true),
+        @CacheEvict(value = "userDetails", key = "@userRepository.findById(#id).orElse(null)?.email")
+    })
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("Utilisateur non trouvé");
         }
         userRepository.deleteById(id);
+    }
+    
+    // Méthode helper pour invalider les caches d'un utilisateur
+    @Caching(evict = {
+        @CacheEvict(value = "users", key = "'email_' + #oldEmail"),
+        @CacheEvict(value = "users", key = "'email_' + #newEmail"),
+        @CacheEvict(value = "users", key = "'username_' + #username"),
+        @CacheEvict(value = "userDetails", key = "#oldEmail"),
+        @CacheEvict(value = "userDetails", key = "#newEmail")
+    })
+    private void evictUserCaches(String oldEmail, String newEmail, String username) {
+        // Cette méthode sert uniquement à invalider les caches
     }
     
     // Convertir User en UserDTO
